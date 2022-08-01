@@ -1,5 +1,8 @@
 .DEFAULT_GOAL := help
 
+setup:
+	pip install -r "requirements.txt"
+
 format:
 	brunette . --config=setup.cfg
 	isort .
@@ -14,6 +17,8 @@ help:
 	@echo "Usage: make [target]"
 	@echo
 	@echo "Available targets:"
+	@echo "  setup:"
+	@echo "    Install the dependencies"
 	@echo "  format:"
 	@echo "    Format the code"
 	@echo "  lint:"
