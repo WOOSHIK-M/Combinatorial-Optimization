@@ -1,0 +1,21 @@
+name: format-lint
+
+on: push
+
+jobs:
+  format-lint:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Initial setup
+      run: |
+        ls -al  # list the files for confirmation
+        python -m pip install --upgrade pip
+        make setup-dev
+    - name: Format with black, isort
+      run: make format
+    - name: Lint with pylint, mypy, flake8 using pytest
+      run: make lint-all
