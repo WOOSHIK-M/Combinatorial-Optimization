@@ -17,6 +17,34 @@
         "contributions": [
           "code"
         ]
+    },
+    {
+
+      "login": "jiyoonlim123",
+      "name": "jiyoonlim123",
+      "avatar_url": "https://avatars.githubusercontent.com/u/86942129?v=4",
+      "profile": "https://github.com/jiyoonlim123",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "seungju-mmc",
+      "name": "seungju-mmc",
+      "avatar_url": "https://avatars.githubusercontent.com/u/61035345?v=4",
+      "profile": "https://github.com/seungju-mmc",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "WONJUNYOO",
+      "name": "WONJUNYOO",
+      "avatar_url": "https://avatars.githubusercontent.com/u/42068294?v=4",
+      "profile": "https://github.com/WONJUNYOO",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
