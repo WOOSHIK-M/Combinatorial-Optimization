@@ -9,7 +9,7 @@ Author:
 """
 import argparse
 
-from data import call_problem
+from problems import call_problem
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
