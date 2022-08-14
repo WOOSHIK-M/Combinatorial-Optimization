@@ -76,8 +76,6 @@ class TSP(Problem):
         - http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/tsp95.pdf
     """
 
-    PROBLEM_NAME = "TSP"
-
     def _parse_data(self) -> List[TSPData]:
         """Parse data."""
         files = [
