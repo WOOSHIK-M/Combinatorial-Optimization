@@ -24,10 +24,10 @@ from structure import City, TSPData
 
 def call_problem(problem: str) -> "Problem":
     """Call problem."""
-    # try:
-    globals()[problem.upper()]()
-    # except:
-    #     raise NotImplementedError("Unknown problem ...")
+    try:
+        globals()[problem.upper()]()
+    except KeyError:
+        raise KeyError(f"Please define {problem} first ...")
 
 
 class Problem(metaclass=ABCMeta):
