@@ -15,7 +15,7 @@ City = namedtuple("City", "index x y")
 
 
 @dataclass
-class TSP:
+class TSPData:
     name: str
     adj_mat: np.ndarray
 

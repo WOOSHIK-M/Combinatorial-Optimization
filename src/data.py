@@ -17,26 +17,44 @@ from pathlib import Path, PosixPath
 from typing import Any, List
 
 import numpy as np
+import tqdm
 
-from structure import TSP, City
+from structure import City, TSPData
 
 
-class DataParser(metaclass=ABCMeta):
+def call_problem(problem: str) -> "Problem":
+    """Call problem."""
+    # try:
+    globals()[problem.upper()]()
+    # except:
+    #     raise NotImplementedError("Unknown problem ...")
+
+
+class Problem(metaclass=ABCMeta):
     """Parse the given problem.
 
-    If you want to define a new problem and the data is constructed,
-    the data files need to be zipped as {problem_name}.zip.
+    The format of inherited problem class.
+        - the class name must be the upper case of the problem name.
+        - the dataset name must be zipped as {problem_name}.zip file
+          and the file name is lower case of the problem name.
     """
 
     DATA_DIR = "data"
     ZIP_EXTENSION = ".zip"
 
-    def __init__(self, problem="tsp") -> None:
+    def __init__(self) -> None:
         """Initialize."""
-        self.data_path = Path(self.DATA_DIR).joinpath(problem)
+        problem_name = self.__class__.__name__
+
+        self.data_path = Path(self.DATA_DIR).joinpath(problem_name)
         if not Path.exists(self.data_path):
-            self._extract_data(problem)
+            self._extract_data(problem_name)
         self.dataset = self._parse_data()
+
+    @abstractmethod
+    def _parse_data(self) -> List[Any]:
+        """Parse data."""
+        pass
 
     def _extract_data(self, problem: str) -> None:
         """Unzip the data file."""
@@ -46,20 +64,21 @@ class DataParser(metaclass=ABCMeta):
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(self.DATA_DIR)
 
-    @abstractmethod
-    def _parse_data(self) -> List[Any]:
-        """Parse data."""
-        pass
 
-
-class TSPDataParser(DataParser):
+class TSP(Problem):
     """Data parser for tsp problem.
+
+    Notes:
+        - ignore some files which is written with edge_weight_format
+          to make parsing easier.
 
     References:
         - http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/tsp95.pdf
     """
 
-    def _parse_data(self) -> List[TSP]:
+    PROBLEM_NAME = "TSP"
+
+    def _parse_data(self) -> List[TSPData]:
         """Parse data."""
         files = [
             file.name.split(".")[0]
@@ -67,16 +86,14 @@ class TSPDataParser(DataParser):
             if file.suffix == ".tsp"
         ]
 
-        problems = []
-        for file in sorted(files):
-            tsp = self._parse_tsp_file(self.data_path.joinpath(f"{file}.tsp"))
-            problems.append(tsp)
+        problems = [
+            self._parse_tsp_file(self.data_path.joinpath(f"{file}.tsp"))
+            for file in tqdm.tqdm(files, desc="Parsing Data:")
+        ]
         return problems
 
-    def _parse_tsp_file(self, file_path: PosixPath) -> TSP:
+    def _parse_tsp_file(self, file_path: PosixPath) -> TSPData:
         """Parse data from .tsp file."""
-        print(file_path)
-
         with open(file_path, "r") as file:
             contents = file.read()
             name = re.findall(r"NAME\s*:\s*(.+)\n", contents)[0]
@@ -94,7 +111,7 @@ class TSPDataParser(DataParser):
             assert n_cities == len(cities), "Wrong regex to parse .tsp file..."
 
             adj_mat = self._make_adjacency_matrix(cities)
-        return TSP(name=name, adj_mat=adj_mat)
+        return TSPData(name=name, adj_mat=adj_mat)
 
     def _get_city_block(self, section_name: str, contents: str) -> str:
         """Get city informations of the given section."""
@@ -122,6 +139,8 @@ class TSPDataParser(DataParser):
         """."""
         n_cities = len(cities)
         adj_mat = np.zeros((n_cities, n_cities))
+
+        # TODO(wooshik.myung): need to accelerate the below calculation
         # for i, city_i in enumerate(cities[:-1]):
         #     for j, city_j in enumerate(cities[i + 1 :], start=i + 1):
         #         weight = abs(city_i.x - city_j.x) + abs(city_i.y - city_j.y)
@@ -129,10 +148,7 @@ class TSPDataParser(DataParser):
         #         adj_mat[j, i] = weight
         return adj_mat
 
-    def _parse_tour(self, file_path: PosixPath) -> TSP:
+    def _parse_tour(self, file_path: PosixPath) -> None:
         """Parse data from .tour file."""
-        print(file_path)
+        # TODO(wooshik.myung): get the optimal path if it exists
         assert False
-
-
-TSPDataParser()
