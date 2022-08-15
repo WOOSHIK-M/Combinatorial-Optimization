@@ -16,12 +16,12 @@ class Solver(metaclass=ABCMeta):
         """Initialize."""
         pass
 
-    @abstractmethod
-    def __call__(self) -> None:
-        """."""
-        pass
+    # @abstractmethod
+    # def __call__(self) -> None:
+    #     """."""
+    #     pass
 
-    @abstractmethod
-    def _optimize(self) -> None:
-        """."""
-        pass
+    # @abstractmethod
+    # def _optimize(self) -> None:
+    #     """."""
+    #     pass

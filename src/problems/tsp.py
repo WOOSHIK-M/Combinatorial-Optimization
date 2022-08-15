@@ -7,18 +7,78 @@ Author:
     - Name: Wooshik Myung
     - Email: wooshik.m@gmail.com
 """
+import random
 import re
+from collections import namedtuple
+from dataclasses import dataclass
 from pathlib import PosixPath
 from typing import List
 
+import matplotlib.pyplot as plt
 import numpy as np
 import tqdm
 
-from problems import Problem
-from structure import City, TSPData
+from problems import Problem, Problems
+
+# named tuples
+City = namedtuple("City", "index x y")
 
 
-class TSP(Problem):
+@dataclass
+class TSPData(Problem):
+    name: str
+    cities: List[City]
+    adj_mat: np.ndarray
+
+    def get_initial_state(self, is_random: bool = True) -> List[int]:
+        """."""
+        tour = list(range(self.n_cities))
+        if is_random:
+            random.shuffle(tour)
+        return tour
+
+    def evaluate(self, tour: List[int]) -> float:
+        """Do evaluate for the given tour."""
+        assert len(tour) == self.adj_mat.shape[0]
+
+        evaluate_tour = tour + [tour[0]]
+        distance = 0.0
+        for idx, source in enumerate(evaluate_tour[:-1]):
+            destination = evaluate_tour[idx + 1]
+            distance += self.adj_mat[source, destination]
+        return -distance
+
+    def draw(self, tour: List[int]) -> None:
+        """Draw the tour path."""
+        assert len(tour) == self.adj_mat.shape[0]
+
+        evaluate_tour = tour + [tour[0]]
+        for idx, source in enumerate(evaluate_tour[:-1]):
+            destination = evaluate_tour[idx + 1]
+
+            _, source_x, source_y = self.cities[source]
+            _, destination_x, destination_y = self.cities[destination]
+
+            plt.scatter(source_x, source_y)
+            plt.arrow(
+                source_x,
+                source_y,
+                destination_x - source_x,
+                destination_y - source_y,
+                width=0.008,
+                length_includes_head=True,
+            )
+        plt.title(f"Tour Length: {self.evaluate(tour):.2f}")
+        plt.savefig("TSP.png")
+        plt.close()
+
+    @property
+    def n_cities(self) -> int:
+        """Get the number of cities."""
+        return self.adj_mat.shape[0]
+
+
+class TSP(Problems):
     """Data parser for tsp problem.
 
     Notes:
@@ -39,7 +99,7 @@ class TSP(Problem):
 
         problems = [
             self._parse_tsp_file(self.data_path.joinpath(f"{file}.tsp"))
-            for file in tqdm.tqdm(files, desc="Parsing Data:")
+            for file in tqdm.tqdm(sorted(files)[:1], desc="Parsing Data:")
         ]
         return problems
 
@@ -92,11 +152,11 @@ class TSP(Problem):
         adj_mat = np.zeros((n_cities, n_cities))
 
         # TODO(wooshik.myung): need to accelerate the below calculation
-        # for i, city_i in enumerate(cities[:-1]):
-        #     for j, city_j in enumerate(cities[i + 1 :], start=i + 1):
-        #         weight = abs(city_i.x - city_j.x) + abs(city_i.y - city_j.y)
-        #         adj_mat[i, j] = weight
-        #         adj_mat[j, i] = weight
+        for i, city_i in enumerate(cities[:-1]):
+            for j, city_j in enumerate(cities[i + 1 :], start=i + 1):
+                weight = abs(city_i.x - city_j.x) + abs(city_i.y - city_j.y)
+                adj_mat[i, j] = weight
+                adj_mat[j, i] = weight
         return adj_mat
 
     def _parse_tour(self, file_path: PosixPath) -> None:

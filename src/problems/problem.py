@@ -5,13 +5,35 @@ Author:
     - Email: wooshik.m@gmail.com
 """
 
+import random
 import zipfile
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
 from typing import Any, List
 
+import numpy as np
+
 
 class Problem(metaclass=ABCMeta):
+    """."""
+
+    @abstractmethod
+    def get_initial_state(self) -> List[int]:
+        """."""
+        pass
+
+    @abstractmethod
+    def evaluate(self, **_: Any) -> float:
+        """."""
+        pass
+
+    @abstractmethod
+    def draw(self, **_: Any) -> None:
+        """."""
+        pass
+
+
+class Problems(metaclass=ABCMeta):
     """Abstract class of the problem.
 
     The format of inherited problem class.
@@ -30,12 +52,22 @@ class Problem(metaclass=ABCMeta):
         self.data_path = Path(self.DATA_DIR).joinpath(problem_name)
         if not Path.exists(self.data_path):
             self._extract_data(problem_name)
-        self.dataset = self._parse_data()
+        self.dataset: List[Problem] = self._parse_data()
 
-    @abstractmethod
-    def _parse_data(self) -> List[Any]:
-        """Parse data."""
-        pass
+    def get_training_data(
+        self, n_data: int = 1, random_select: bool = True
+    ) -> List[Problem]:
+        """."""
+        if random_select:
+            return np.random.choice(self.dataset, n_data).tolist()
+        else:
+            return self.dataset[:n_data]
+
+    def get_evaluation_data(self, index: int = None) -> Problem:
+        """."""
+        index = index or random.randint(0, len(self.dataset) - 1)
+        assert index <= len(self.dataset)
+        return self.dataset[index]
 
     def _extract_data(self, problem: str) -> None:
         """Unzip the data file."""
@@ -44,3 +76,8 @@ class Problem(metaclass=ABCMeta):
 
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(self.DATA_DIR)
+
+    @abstractmethod
+    def _parse_data(self) -> List[Any]:
+        """Parse data."""
+        pass
