@@ -62,7 +62,7 @@ class TSP(Problem):
             assert n_cities == len(cities), "Wrong regex to parse .tsp file..."
 
             adj_mat = self._make_adjacency_matrix(cities)
-        return TSPData(name=name, adj_mat=adj_mat)
+        return TSPData(name=name, cities=cities, adj_mat=adj_mat)
 
     def _get_city_block(self, section_name: str, contents: str) -> str:
         """Get city informations of the given section."""

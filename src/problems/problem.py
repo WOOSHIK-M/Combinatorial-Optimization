@@ -12,7 +12,7 @@ from typing import Any, List
 
 
 class Problem(metaclass=ABCMeta):
-    """Parse the given problem.
+    """Abstract class of the problem.
 
     The format of inherited problem class.
         - the class name must be the upper case of the problem name.
