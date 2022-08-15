@@ -56,15 +56,18 @@ class SimulatedAnnealing(Solver):
             for _ in range(self.n_iter):
                 idx_0, idx_1 = np.random.choice(indices, 2)
 
-                tmp_state = cur_state.copy()
-                tmp_state[idx_0], tmp_state[idx_1] = tmp_state[idx_1], tmp_state[idx_0]
-                tmp_reward = problem.evaluate(tmp_state)
+                cur_state[idx_0], cur_state[idx_1] = cur_state[idx_1], cur_state[idx_0]
+                tmp_reward = problem.evaluate(cur_state)
 
                 if self._accept_or_not(cur_temp, cur_reward, tmp_reward):
-                    cur_state, cur_reward = tmp_state.copy(), tmp_reward
-
+                    cur_reward = tmp_reward
                     if tmp_reward > best_reward:
                         best_state, best_reward = cur_state.copy(), cur_reward
+                else:
+                    cur_state[idx_0], cur_state[idx_1] = (
+                        cur_state[idx_1],
+                        cur_state[idx_0],
+                    )
 
             cur_temp *= self.cooling_factor
         return best_state
